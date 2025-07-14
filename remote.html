@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TV Remote Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a1a2a 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(75, 0, 130, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(25, 25, 112, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 20px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: #a855f7;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .status--connected {
+            filter: hue-rotate(190deg);
+        }
+        .status--disconnected {
+            filter: hue-rotate(90deg);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(45deg, #a855f7, #c084fc);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .settings-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .settings-btn:hover {
+            background: rgba(168, 85, 247, 0.2);
+            border-color: rgba(168, 85, 247, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.2);
+        }
+
+        .settings-btn:hover::before {
+            left: 100%;
+        }
+
+        .settings-btn:active {
+            transform: translateY(0);
+            background: rgba(168, 85, 247, 0.3);
+        }
+
+        .remote-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .power-section {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .power-btn {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            border: none;
+            border-radius: 50%;
+            width: 85px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 12px 32px rgba(220, 38, 38, 0.4),
+                0 0 0 0 rgba(220, 38, 38, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .power-btn--on {
+            filter: hue-rotate(100deg);
+        }
+
+        .power-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+        }
+
+        .power-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 
+                0 16px 40px rgba(220, 38, 38, 0.5),
+                0 0 0 8px rgba(220, 38, 38, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .power-btn:hover::before {
+            width: 100%;
+            height: 100%;
+        }
+
+        .power-btn:active {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 
+                0 8px 20px rgba(220, 38, 38, 0.6),
+                0 0 0 4px rgba(220, 38, 38, 0.2);
+        }
+
+        .directional-pad {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .d-pad-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at center, rgba(168, 85, 247, 0.08) 0%, rgba(255, 255, 255, 0.03) 70%);
+            border-radius: 50%;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(168, 85, 247, 0.1);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .d-pad-center {
+            position: relative;
+            z-index: 2;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.1) 100%);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 50%;
+            width: 85px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 18px;
+            font-weight: 700;
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 6px 20px rgba(168, 85, 247, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .d-pad-center:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(147, 51, 234, 0.2) 100%);
+            border-color: rgba(168, 85, 247, 0.5);
+            transform: scale(1.05);
+            box-shadow: 
+                0 8px 25px rgba(168, 85, 247, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .d-pad-arrow {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(50, 50, 50, 0.8) 100%) !important;
+            border: none;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 22px;
+            color: #e2e8f0;
+            border: 2px solid rgba(168, 85, 247, 0.2) !important;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .d-pad-arrow:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(147, 51, 234, 0.2) 100%) !important;
+            border-color: rgba(168, 85, 247, 0.4) !important;
+            /* transform: scale(1.1); */
+            box-shadow: 
+                0 6px 20px rgba(168, 85, 247, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .d-pad-arrow:active {
+            /* transform: scale(1.05) translateY(0); */
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(147, 51, 234, 0.3) 100%) !important;
+        }
+
+        .arrow-up { top: 0px; left: 50%; transform: translateX(-50%); }
+        .arrow-down { bottom: 0px; left: 50%; transform: translateX(-50%); }
+        .arrow-left { left: 0px; top: 50%; transform: translateY(-50%); }
+        .arrow-right { right: 0px; top: 50%; transform: translateY(-50%); }
+
+        .back-button-dpad {
+            position: absolute;
+            bottom: -18px;
+            left: -18px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(255, 255, 255, 0.08) 100%);
+            border: none;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            color: #e2e8f0;
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .back-button-dpad:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(255, 255, 255, 0.15) 100%);
+            border-color: rgba(168, 85, 247, 0.5);
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(168, 85, 247, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .back-button-dpad:active {
+            transform: scale(1.05) translateY(0);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+        }
+
+        .home-button-dpad {
+            position: absolute;
+            bottom: -18px;
+            right: -18px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(255, 255, 255, 0.08) 100%);
+            border: none;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            color: #e2e8f0;
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .home-button-dpad:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(255, 255, 255, 0.15) 100%);
+            border-color: rgba(168, 85, 247, 0.5);
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 
+                0 8px 25px rgba(168, 85, 247, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .home-button-dpad:active {
+            transform: scale(1.05) translateY(0);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+        }
+
+        .volume-section {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .volume-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(168, 85, 247, 0.05) 100%);
+            border: 2px solid rgba(168, 85, 247, 0.2);
+            border-radius: 20px;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 16px;
+            color: #e2e8f0;
+            font-weight: 600;
+            backdrop-filter: blur(20px);
+            min-width: 90px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .volume-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .volume-btn:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(147, 51, 234, 0.1) 100%);
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 20px rgba(168, 85, 247, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .volume-btn:hover::before {
+            left: 100%;
+        }
+
+        .volume-btn:active {
+            transform: translateY(0);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(147, 51, 234, 0.15) 100%);
+        }
+
+        .apps-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+
+        .app-btn {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 17px;
+            color: white;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.5px;
+        }
+
+        .app-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+
+        .app-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            filter: brightness(1.15);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .app-btn:hover::before {
+            left: 100%;
+        }
+
+        .app-btn:active {
+            transform: translateY(-1px) scale(1.01);
+            filter: brightness(1.05);
+        }
+
+        .youtube-btn {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            border-color: rgba(255, 0, 0, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(255, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .youtube-btn:hover {
+            border-color: rgba(255, 0, 0, 0.5);
+            box-shadow: 
+                0 12px 35px rgba(255, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .tivimate-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            border-color: rgba(33, 150, 243, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(33, 150, 243, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .tivimate-btn:hover {
+            border-color: rgba(33, 150, 243, 0.5);
+            box-shadow: 
+                0 12px 35px rgba(33, 150, 243, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .twitch-btn {
+            background: linear-gradient(135deg, #9146FF 0%, #7B2CBF 100%);
+            border-color: rgba(145, 70, 255, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(145, 70, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .twitch-btn:hover {
+            border-color: rgba(145, 70, 255, 0.5);
+            box-shadow: 
+                0 12px 35px rgba(145, 70, 255, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .icon-small {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .settings-modal {
+            margin: auto;
+            padding: 0;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            color: white;
+            width: min(400px, 90vw);
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-modal::backdrop {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .modal-content {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 6px 20px rgba(168, 85, 247, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+            border-color: rgba(168, 85, 247, 0.5);
+            box-shadow: 
+                0 8px 25px rgba(168, 85, 247, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            
+            .remote-container {
+                gap: 25px;
+            }
+            
+            .power-btn {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .directional-pad {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .d-pad-center {
+                width: 70px;
+                height: 70px;
+                font-size: 16px;
+            }
+            
+            .d-pad-arrow {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+
+            .settings-modal {
+                width: 95vw;
+            }
+
+            .modal-header {
+                padding: 20px 20px 12px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .back-button-dpad {
+                width: 45px;
+                height: 45px;
+                bottom: -12px;
+                left: -12px;
+            }
+
+            .home-button-dpad {
+                width: 45px;
+                height: 45px;
+                bottom: -12px;
+                right: -12px;
+            }
+        }
+
+        .verification-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .verification-spinner {
+            margin: 0 auto 24px;
+            width: 60px;
+            height: 60px;
+        }
+
+        .spinner {
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(168, 85, 247, 0.2);
+            border-top: 3px solid #a855f7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .verification-text {
+            font-size: 16px;
+            color: #e2e8f0;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
+        .verification-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #a855f7, #c084fc);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 3s ease-in-out;
+            /* animation: progressFill 3s ease-in-out forwards; */
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        .form-error {
+            color: rgb(255, 84, 84);
+        }
+
+        /* @keyframes progressFill {
+            0% { width: 0%; }
+            20% { width: 30%; }
+            50% { width: 60%; }
+            80% { width: 90%; }
+            100% { width: 100%; }
+        } */
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div id="connectedStatus" class="status status--disconnected">
+            <div class="status-dot"></div>
+            <span id="connectedStatusText">Disconnected from TV</span>
+        </div>
+        <button class="settings-btn" onclick="openSettings()">
+            <svg class="icon-small" viewBox="0 0 24 24">
+                <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="remote-container">
+        <div class="power-section">
+            <button id="powerBtn" class="power-btn" onclick="togglePower()">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="directional-pad">
+            <div class="d-pad-bg"></div>
+            <button class="d-pad-arrow arrow-up" onclick="navigate('up')">▲</button>
+            <button class="d-pad-arrow arrow-down" onclick="navigate('down')">▼</button>
+            <button class="d-pad-arrow arrow-left" onclick="navigate('left')">◀</button>
+            <button class="d-pad-arrow arrow-right" onclick="navigate('right')">▶</button>
+            <button class="d-pad-center" onclick="selectAction()">OK</button>
+            <button class="back-button-dpad" onclick="goBack()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
+                </svg>
+            </button>
+            <button class="home-button-dpad" onclick="goHome()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="volume-section">
+            <button class="volume-btn" onclick="volumeDown()">
+                <svg class="icon-small" viewBox="0 0 24 24">
+                    <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/>
+                </svg>
+                VOL-
+            </button>
+            <button class="volume-btn" onclick="volumeUp()">
+                <svg class="icon-small" viewBox="0 0 24 24">
+                    <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/>
+                </svg>
+                VOL+
+            </button>
+        </div>
+
+        <div class="apps-section">
+            <button id="youtubeBtn" class="app-btn youtube-btn" onclick="openYouTube()">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M10,16.5V7.5L16,12M20,4.4C19.4,4.2 15.7,4 12,4C8.3,4 4.6,4.2 4,4.4C3.4,4.6 3,5.6 3,6.4V17.6C3,18.4 3.4,19.4 4,19.6C4.6,19.8 8.3,20 12,20C15.7,20 19.4,19.8 20,19.6C20.6,19.4 21,18.4 21,17.6V6.4C21,5.6 20.6,4.6 20,4.4Z"/>
+                </svg>
+                YouTube
+            </button>
+            
+            <button id="tivimateBtn" class="app-btn tivimate-btn" onclick="openTiviMate()">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="3" y="5" width="18" height="12" rx="2" ry="2"/>
+                    <rect x="5" y="7" width="14" height="8" fill="none" stroke="currentColor" stroke-width="0.5"/>
+                    <rect x="10" y="17" width="4" height="2"/>
+                    <rect x="8" y="19" width="8" height="1"/>
+                </svg>
+                TiviMate
+            </button>
+            
+            <button id="twitchBtn" class="app-btn twitch-btn" onclick="openTwitch()">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M11.64 5.93H13.07V10.21H11.64M15.57 5.93H17V10.21H15.57M7 2L3.43 5.57V18.43H6.85V22L10.42 18.43H13.07L20.57 10.93V2M19.14 10.21L16.5 12.85H13.85L11.64 15.07V12.85H7.71V3.42H19.14Z"/>
+                </svg>
+                Twitch
+            </button>
+        </div>
+    </div>
+
+    <dialog class="settings-modal" id="settingsModal">
+        <div class="modal-header">
+            <h2 class="modal-title">TV Settings</h2>
+            <button class="close-btn" onclick="closeSettings()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-content">
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label class="form-label" for="tvAddress">TV Address</label>
+                    <input 
+                        type="text" 
+                        id="tvAddress" 
+                        class="form-input" 
+                        placeholder="192.168.1.100"
+                        required
+                        value="">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="preSharedKey">Pre-shared Key</label>
+                    <input 
+                        type="text" 
+                        id="preSharedKey" 
+                        class="form-input" 
+                        placeholder="Enter your TV's pre-shared key"
+                        required
+                        value="">
+                </div>
+                <div class="form-error">
+                    <p id="settingsError"></p>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" onclick="closeSettings()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Settings</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <dialog class="settings-modal" id="verifyingModal">
+        <div class="modal-header">
+            <h2 class="modal-title">Verifying Settings</h2>
+        </div>
+        <div class="modal-content">
+            <div class="verification-content">
+                <div class="verification-spinner">
+                    <div class="spinner"></div>
+                </div>
+                <p class="verification-text">Connecting to TV and verifying settings...</p>
+                <div class="verification-progress">
+                    <div id="verificationProgressBar" class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        const settings = {
+            tvAddress: '',
+            tvPSK: '',
+            worked: false,
+        };
+
+        const state = {
+            connected: false,
+            modelName: '',
+            youtube: false,
+            tivimate: false,
+            twitch: false,
+            poweredOn: false,
+        };
+
+        const strings = {
+            youtube: 'com.sony.dtv.com.google.android.youtube.tv.com.google.android.apps.youtube.tv.activity.ShellActivity',
+            tivimate: 'com.sony.dtv.ar.tvplayer.tv.ar.tvplayer.tv.ui.MainActivity',
+            twitch: 'com.sony.dtv.tv.twitch.android.app.tv.twitch.starshot64.app.StarshotActivity',
+        };
+
+        function loadSettings() {
+            settings.tvAddress = localStorage.getItem('tvAddress') || '';
+            settings.tvPSK = localStorage.getItem('preSharedKey') || '';
+            settings.worked = localStorage.getItem('worked') || false;
+            
+            document.getElementById('tvAddress').value = settings.tvAddress;
+            document.getElementById('preSharedKey').value = settings.tvPSK;
+        }
+
+        function tvAddress() {
+            let addr = settings.tvAddress;
+            if (addr.endsWith('/')) {
+                addr = addr.replace(/\/+$/, '');
+            }
+            const addrLower = addr.toLocaleLowerCase();
+            if (!addrLower.startsWith('http://') && !addrLower.startsWith('https://')) {
+                addr = `http://${addr}`;
+            }
+            return addr;
+        }
+
+        async function sleep(ms) {
+            await new Promise((resolve) => {
+                setTimeout(resolve, ms);
+            });
+        }
+
+        let requestID = 0;
+        async function sendRequest(endpoint, method, version = '1.0', params = null) {
+            requestID += 1;
+            const requestBody = {
+                method: method,
+                id: requestID,
+                params: params ? [params] : [],
+                version,
+            };
+
+            let response;
+            try {
+                response = await fetch(`${tvAddress()}/sony/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Auth-PSK': settings.tvPSK,
+                        'Pragma': 'no-cache',
+                        'Cache-Control': 'no-cache',
+                        'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+            } catch (error) {
+                throw new Error(`Request failed: ${error.message}`);
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(`RPC error: ${data.error.message || 'Unknown error'}`);
+            }
+
+            return data;
+        }
+        async function sendIRCCRequest(code) {
+            let response;
+            try {
+                response = await fetch(`${tvAddress()}/sony/ircc`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Auth-PSK': settings.tvPSK,
+                        'Pragma': 'no-cache',
+                        'Cache-Control': 'no-cache',
+                        'SOAPACTION': '"urn:schemas-sony-com:service:IRCC:1#X_SendIRCC"',
+                        'Content-Type': 'application/xml; charset=UTF-8',
+                        'Accept': '*/*',
+                    },
+                    body: `
+<s:Envelope
+    xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+    s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <s:Body>
+        <u:X_SendIRCC xmlns:u="urn:schemas-sony-com:service:IRCC:1">
+            <IRCCCode>${code}</IRCCCode>
+        </u:X_SendIRCC>
+    </s:Body>
+</s:Envelope>
+                    `,
+                });
+            } catch (error) {
+                throw new Error(`Request failed: ${error.message}`);
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return response;
+        }
+
+        function saveSettings(event) {
+            event.preventDefault();
+            
+            const tvAddress = document.getElementById('tvAddress').value;
+            const preSharedKey = document.getElementById('preSharedKey').value;
+            
+            localStorage.setItem('tvAddress', tvAddress);
+            localStorage.setItem('preSharedKey', preSharedKey);
+            localStorage.setItem('worked', '');
+            
+            closeSettings();
+            loadSettings();
+            showVerificationModal();
+        }
+
+        async function togglePower() {
+            await checkPoweredOn();
+            if (state.poweredOn) {
+                await sendRequest('system', 'setPowerStatus', '1.0', { status: false });
+            } else {
+                // YMMV
+                await sendIRCCRequest('AAAAAQAAAAEAAAAuAw==');
+            }
+            await sleep(500);
+            await checkPoweredOn();
+        }
+
+        function navigate(direction) {
+            let code;
+            if (direction === 'up') {
+                code = 'AAAAAQAAAAEAAAB0Aw==';
+            } else if (direction === 'right') {
+                code = 'AAAAAQAAAAEAAAAzAw==';
+            } else if (direction === 'down') {
+                code = 'AAAAAQAAAAEAAAB1Aw==';
+            } else if (direction === 'left') {
+                code = 'AAAAAQAAAAEAAAA0Aw==';
+            } else {
+                throw new Error(`Unknown direction ${direction}`);
+            }
+            return sendIRCCRequest(code);
+        }
+
+        function selectAction() {
+            return sendIRCCRequest('AAAAAQAAAAEAAABlAw==');
+        }
+
+        function volumeUp() {
+            return sendRequest('audio', 'setAudioVolume', '1.2', {
+                target: '',
+                volume: '+1',
+                ui: 'on',
+            });
+        }
+
+        function volumeDown() {
+            return sendRequest('audio', 'setAudioVolume', '1.2', {
+                target: '',
+                volume: '-1',
+                ui: 'on',
+            });
+        }
+
+        async function openApp(uri) {
+            await sendRequest('appControl', 'terminateApps');
+            await sendRequest('appControl', 'setActiveApp', '1.0', {
+                uri,
+            });
+        }
+
+        function openYouTube() {
+            return openApp(strings.youtube);
+        }
+
+        function openTiviMate() {
+            return openApp(strings.tivimate);
+        }
+
+        function openTwitch() {
+            return openApp(strings.twitch);
+        }
+
+        function goBack() {
+            return sendIRCCRequest('AAAAAgAAAJcAAAAjAw==');
+        }
+
+        function goHome() {
+            return sendIRCCRequest('AAAAAQAAAAEAAABgAw==');
+        }
+
+        function openSettings() {
+            const modal = document.getElementById('settingsModal');
+            loadSettings();
+            modal.showModal();
+        }
+
+        function closeSettings() {
+            const modal = document.getElementById('settingsModal');
+            modal.close();
+        }
+
+        async function checkConnection() {
+            try {
+                const resp = await sendRequest('system', 'getInterfaceInformation');
+                state.modelName = resp.result[0].modelName;
+                state.connected = true;
+
+                document.getElementById('connectedStatus').classList.remove('status--disconnected');
+                document.getElementById('connectedStatus').classList.add('status--connected');
+                document.getElementById('connectedStatusText').innerText = `Connected to ${state.modelName || 'TV'}`;
+            } catch (ex) {
+                state.connected = false;
+                document.getElementById('connectedStatus').classList.remove('status--connected');
+                document.getElementById('connectedStatus').classList.add('status--disconnected');
+                document.getElementById('connectedStatusText').innerText = 'Disconnected from TV';
+                throw ex;
+            }
+        }
+
+        async function checkApps() {
+            let youtube = false;
+            let tivimate = false;
+            let twitch = false;
+
+            const resp = await sendRequest('appControl', 'getApplicationList');
+            for (let i = 0; i < resp.result[0].length; i += 1) {
+                if (resp.result[0][i].uri === strings.youtube) {
+                    youtube = true;
+                } else if (resp.result[0][i].uri === strings.tivimate) {
+                    tivimate = true;
+                } else if (resp.result[0][i].uri === strings.twitch) {
+                    twitch = true;
+                }
+            }
+
+            state.youtube = youtube;
+            state.tivimate = tivimate;
+            state.twitch = twitch;
+
+            if (!state.youtube) {
+                document.getElementById('youtubeBtn').style.display = 'none';
+            }
+            if (!state.tivimate) {
+                document.getElementById('tivimateBtn').style.display = 'none';
+            }
+            if (!state.twitch) {
+                document.getElementById('twitchBtn').style.display = 'none';
+            }
+        }
+
+        async function checkPoweredOn() {
+            const resp = await sendRequest('system', 'getPowerStatus');
+            if (resp.result[0].status === 'active') {
+                state.poweredOn = true;
+                document.getElementById('powerBtn').classList.add('power-btn--on');
+            } else if (resp.result[0].status === 'standby') {
+                state.poweredOn = false;
+                document.getElementById('powerBtn').classList.remove('power-btn--on');
+            } else {
+                throw new Error(`Unhandled TV power status ${resp.result[0].status}`);
+            }
+        }
+
+        async function performRecheck() {
+            await checkConnection();
+            await checkPoweredOn();
+        }
+
+        let recheckInterval = null;
+        async function showVerificationModal() {
+            const modal = document.getElementById('verifyingModal');
+            modal.showModal();
+
+            const verificationProgressBar = document.getElementById('verificationProgressBar');
+            verificationProgressBar.style.width = '0%';
+
+            if (!settings.worked) {
+                await sleep(500);
+            }
+
+            const settingsError = document.getElementById('settingsError');
+            settingsError.innerText = '';
+
+            // this request works even if psk is wrong
+            try {
+                verificationProgressBar.style.width = '30%';
+                await checkConnection();
+                if (!settings.worked) {
+                    await sleep(2000);
+                }
+            } catch (ex) {
+                settingsError.innerText = 'Failed to connect to address, please confirm correct IP';
+                console.error(ex);
+                openSettings();
+                verificationProgressBar.style.width = '0%';
+                return;
+            }
+
+            try {
+                verificationProgressBar.style.width = '60%';
+                await checkApps();
+                if (!settings.worked) {
+                    await sleep(1000);
+                }
+                verificationProgressBar.style.width = '70%';
+                await checkPoweredOn();
+                if (!settings.worked) {
+                    await sleep(1000);
+                }
+            } catch (ex) {
+                settingsError.innerText = 'Failed to get list of apps, please confirm correct PSK';
+                console.error(ex);
+                openSettings();
+                verificationProgressBar.style.width = '0%';
+                return;
+            }
+
+            verificationProgressBar.style.width = '100%';
+            if (!settings.worked) {
+                await sleep(1500);
+            }
+            modal.close();
+            localStorage.setItem('worked', 'true');
+            settings.worked = true;
+            verificationProgressBar.style.width = '0%';
+
+            if (recheckInterval) {
+                clearInterval(recheckInterval);
+            }
+            recheckInterval = setInterval(() => performRecheck(), 30_000);
+        }
+
+        function closeVerificationModal() {
+            const modal = document.getElementById('verifyingModal');
+            modal.close();
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', saveSettings);
+        loadSettings();
+        if (settings.worked) {
+            showVerificationModal();
+        } else {
+            openSettings();
+        }
+    </script>
+</body>
+</html>
