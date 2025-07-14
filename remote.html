@@ -162,6 +162,7 @@
             border: 2px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
+            color: black;
         }
 
         .power-btn--on {
@@ -811,7 +812,7 @@
             <div class="status-dot"></div>
             <span id="connectedStatusText">Disconnected from TV</span>
         </div>
-        <button class="settings-btn" onclick="openSettings()">
+        <button class="settings-btn" onclick="openSettings()" type="button">
             <svg class="icon-small" viewBox="0 0 24 24">
                 <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.22,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.22,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
             </svg>
@@ -820,7 +821,7 @@
 
     <div class="remote-container">
         <div class="power-section">
-            <button id="powerBtn" class="power-btn" onclick="togglePower()">
+            <button id="powerBtn" class="power-btn" onclick="togglePower()" type="button">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M16.56,5.44L15.11,6.89C16.84,7.94 18,9.83 18,12A6,6 0 0,1 12,18A6,6 0 0,1 6,12C6,9.83 7.16,7.94 8.88,6.88L7.44,5.44C5.36,6.88 4,9.28 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12C20,9.28 18.64,6.88 16.56,5.44M13,3H11V13H13"/>
                 </svg>
@@ -829,17 +830,17 @@
 
         <div class="directional-pad">
             <div class="d-pad-bg"></div>
-            <button class="d-pad-arrow arrow-up" onclick="navigate('up')">▲</button>
-            <button class="d-pad-arrow arrow-down" onclick="navigate('down')">▼</button>
-            <button class="d-pad-arrow arrow-left" onclick="navigate('left')">◀</button>
-            <button class="d-pad-arrow arrow-right" onclick="navigate('right')">▶</button>
-            <button class="d-pad-center" onclick="selectAction()">OK</button>
-            <button class="back-button-dpad" onclick="goBack()">
+            <button class="d-pad-arrow arrow-up" onclick="navigate('up')" type="button">▲</button>
+            <button class="d-pad-arrow arrow-down" onclick="navigate('down')" type="button">▼</button>
+            <button class="d-pad-arrow arrow-left" onclick="navigate('left')" type="button">◀</button>
+            <button class="d-pad-arrow arrow-right" onclick="navigate('right')" type="button">▶</button>
+            <button class="d-pad-center" onclick="selectAction()" type="button">OK</button>
+            <button class="back-button-dpad" onclick="goBack()" type="button">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"/>
                 </svg>
             </button>
-            <button class="home-button-dpad" onclick="goHome()">
+            <button class="home-button-dpad" onclick="goHome()" type="button">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"/>
                 </svg>
@@ -847,13 +848,13 @@
         </div>
 
         <div class="volume-section">
-            <button class="volume-btn" onclick="volumeDown()">
+            <button class="volume-btn" onclick="volumeDown()" type="button">
                 <svg class="icon-small" viewBox="0 0 24 24">
                     <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/>
                 </svg>
                 VOL-
             </button>
-            <button class="volume-btn" onclick="volumeUp()">
+            <button class="volume-btn" onclick="volumeUp()" type="button">
                 <svg class="icon-small" viewBox="0 0 24 24">
                     <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/>
                 </svg>
@@ -862,14 +863,14 @@
         </div>
 
         <div class="apps-section">
-            <button id="youtubeBtn" class="app-btn youtube-btn" onclick="openYouTube()">
+            <button id="youtubeBtn" class="app-btn youtube-btn" onclick="openYouTube()" type="button">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M10,16.5V7.5L16,12M20,4.4C19.4,4.2 15.7,4 12,4C8.3,4 4.6,4.2 4,4.4C3.4,4.6 3,5.6 3,6.4V17.6C3,18.4 3.4,19.4 4,19.6C4.6,19.8 8.3,20 12,20C15.7,20 19.4,19.8 20,19.6C20.6,19.4 21,18.4 21,17.6V6.4C21,5.6 20.6,4.6 20,4.4Z"/>
                 </svg>
                 YouTube
             </button>
             
-            <button id="tivimateBtn" class="app-btn tivimate-btn" onclick="openTiviMate()">
+            <button id="tivimateBtn" class="app-btn tivimate-btn" onclick="openTiviMate()" type="button">
                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="3" y="5" width="18" height="12" rx="2" ry="2"/>
                     <rect x="5" y="7" width="14" height="8" fill="none" stroke="currentColor" stroke-width="0.5"/>
@@ -879,7 +880,7 @@
                 TiviMate
             </button>
             
-            <button id="twitchBtn" class="app-btn twitch-btn" onclick="openTwitch()">
+            <button id="twitchBtn" class="app-btn twitch-btn" onclick="openTwitch()" type="button">
                 <svg class="icon" viewBox="0 0 24 24">
                     <path d="M11.64 5.93H13.07V10.21H11.64M15.57 5.93H17V10.21H15.57M7 2L3.43 5.57V18.43H6.85V22L10.42 18.43H13.07L20.57 10.93V2M19.14 10.21L16.5 12.85H13.85L11.64 15.07V12.85H7.71V3.42H19.14Z"/>
                 </svg>
@@ -891,7 +892,7 @@
     <dialog class="settings-modal" id="settingsModal">
         <div class="modal-header">
             <h2 class="modal-title">TV Settings</h2>
-            <button class="close-btn" onclick="closeSettings()">
+            <button class="close-btn" onclick="closeSettings()" type="button">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/>
                 </svg>
