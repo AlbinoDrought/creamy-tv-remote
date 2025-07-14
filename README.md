@@ -14,7 +14,7 @@ This is an HTML file that uses the local Sony Bravia TV API.
 
 **Settings Verification UI**
 
-![](./.readme/verify.png)
+![](./.readme/verifying.png)
 
 ## Configuring your TV
 
